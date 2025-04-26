@@ -52,7 +52,7 @@ let categories = JSON.parse(localStorage.getItem("categories")) || [
 
 let transactions = getTransactionsFromStorage();
 
-// Add transaction
+// Add transaction to the value given by the user
 function addTransaction(e, descriptionEl, amountEl, categoryEl, dateEl) {
   e.preventDefault();
 
