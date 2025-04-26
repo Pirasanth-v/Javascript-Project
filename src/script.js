@@ -50,7 +50,7 @@ let categories = JSON.parse(localStorage.getItem("categories")) || [
   "Other",
 ];
 
-let transactions = getTransactionsFromStorage();
+const transactions = getTransactionsFromStorage();
 
 // Add transaction
 function addTransaction(e, descriptionEl, amountEl, categoryEl, dateEl) {
@@ -178,6 +178,7 @@ function createChart(chartContainer) {
   // Sum expenses by category (only negative amounts)
   transactions.forEach((transaction) => {
     if (transaction.amount < 0) {
+      if (!categorySummary[transaction.category]) categorySummary[transaction.category] = 0;
       categorySummary[transaction.category] += Math.abs(transaction.amount);
     }
   });
@@ -290,6 +291,7 @@ function generateReport() {
 
   transactions.forEach((t) => {
     if (t.amount < 0) {
+      if (!categorySummary[t.category]) categorySummary[t.category] = 0;
       categorySummary[t.category] += Math.abs(t.amount);
     }
   });
@@ -489,13 +491,12 @@ export {
   createChart,
   generateReport,
   openCategoryModal,
-  generateReport,dal,
-  openCategoryModal,
   closeCategoryModal,
-  addNewCategory,ndUpdate,
-  deleteCategory,ist,
+  addNewCategory,
+  deleteCategory,
   saveCategoriesAndUpdate,
   renderCategoryList,
-  setupTabs,tionDOM,
+  setupTabs,
   updateValues,
-  addTransactionDOM,};
+  addTransactionDOM
+};
