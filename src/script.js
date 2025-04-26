@@ -36,7 +36,7 @@ function init() {
 }
 
 function getTransactionsFromStorage() {
-  let transactions = localStorage.getItem("transaction");
+  let transactions = localStorage.getItem("transactions");
   return transactions ? JSON.parse(transactions) : [];
 }
 
@@ -69,7 +69,7 @@ function addTransaction(e, descriptionEl, amountEl, categoryEl, dateEl) {
     date,
   };
 
-  transaction.push(newTransaction);
+  transactions.push(newTransaction);
   updateLocalStorage();
 }
 
@@ -80,7 +80,7 @@ function generateID() {
 
 // Update local storage
 function updateLocalStorage() {
-  localStorage.setItem("transactions", transactions);
+  localStorage.setItem("transactions", JSON.stringify(transactions));
 }
 
 // Remove transaction
@@ -94,9 +94,7 @@ function removeTransaction(id) {
 function updateValues(balanceEl, incomeEl, expenseEl) {
   const amounts = transactions.map((transaction) => transaction.amount);
 
-  const total = amounts.reduce((acc, amount) => {
-    return (acc = amount);
-  }, 0);
+  const total = amounts.reduce((acc, amount) => acc + amount, 0);
 
   const income = amounts
     .filter((amount) => amount > 0)
@@ -117,7 +115,7 @@ function addTransactionDOM(transaction, transactionListEl) {
 
   const item = document.createElement("li");
 
-  item.className = transaction.category === "income" ? "expense" : "income";
+  item.className = transaction.amount < 0 ? "expense" : "income";
 
   const detailsDiv = document.createElement("div");
   detailsDiv.className = "details";
@@ -162,7 +160,7 @@ function addTransactionDOM(transaction, transactionListEl) {
 function createChart(chartContainer) {
   chartContainer.innerHTML = "";
 
-  if ((transactions.length = 0)) {
+  if (transactions.length === 0) {
     chartContainer.textContent = "No data to display";
     return;
   }
@@ -276,7 +274,7 @@ function generateReport() {
     .reduce((acc, t) => acc + t.amount, 0);
 
   const totalExpense = transactions
-    .filter((t) => t.amount > 0)
+    .filter((t) => t.amount < 0)
     .reduce((acc, t) => acc + t.amount, 0);
 
   const balance = totalIncome - totalExpense;
@@ -491,12 +489,13 @@ export {
   createChart,
   generateReport,
   openCategoryModal,
+  generateReport,dal,
+  openCategoryModal,
   closeCategoryModal,
-  addNewCategory,
-  deleteCategory,
+  addNewCategory,ndUpdate,
+  deleteCategory,ist,
   saveCategoriesAndUpdate,
   renderCategoryList,
-  setupTabs,
+  setupTabs,tionDOM,
   updateValues,
-  addTransactionDOM,
-};
+  addTransactionDOM,};
