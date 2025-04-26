@@ -36,7 +36,7 @@ function init() {
 }
 
 function getTransactionsFromStorage() {
-  let transactions = localStorage.getItem("transaction");
+  let transactions = localStorage.getItem("transactions");
   return transactions ? JSON.parse(transactions) : [];
 }
 
@@ -52,7 +52,7 @@ let categories = JSON.parse(localStorage.getItem("categories")) || [
 
 let transactions = getTransactionsFromStorage();
 
-// Add transaction
+// Add transaction to the value given by the user
 function addTransaction(e, descriptionEl, amountEl, categoryEl, dateEl) {
   e.preventDefault();
 
@@ -63,13 +63,14 @@ function addTransaction(e, descriptionEl, amountEl, categoryEl, dateEl) {
   const date = dateEl.value;
 
   const newTransaction = {
+    id: generateID(),
     description,
     amount,
     category,
     date,
   };
 
-  transaction.push(newTransaction);
+  transactions.push(newTransaction);
   updateLocalStorage();
 }
 
@@ -80,7 +81,7 @@ function generateID() {
 
 // Update local storage
 function updateLocalStorage() {
-  localStorage.setItem("transactions", transactions);
+  localStorage.setItem("transactions", JSON.stringify(transactions));
 }
 
 // Remove transaction
@@ -94,9 +95,7 @@ function removeTransaction(id) {
 function updateValues(balanceEl, incomeEl, expenseEl) {
   const amounts = transactions.map((transaction) => transaction.amount);
 
-  const total = amounts.reduce((acc, amount) => {
-    return (acc = amount);
-  }, 0);
+  const total = amounts.reduce((acc, amount) => acc + amount, 0);
 
   const income = amounts
     .filter((amount) => amount > 0)
@@ -106,9 +105,9 @@ function updateValues(balanceEl, incomeEl, expenseEl) {
     .filter((amount) => amount < 0)
     .reduce((acc, amount) => acc - amount, 0);
 
-  balanceEl.textContent = `Rs ${total}`;
-  incomeEl.textContent = `+Rs ${income}`;
-  expenseEl.textContent = `-Rs ${Math.abs(expense)}`;
+  balanceEl.textContent = `Rs ${total.toFixed(2)}`;
+  incomeEl.textContent = `+Rs ${income.toFixed(2)}`;
+  expenseEl.textContent = `-Rs ${Math.abs(expense).toFixed(2)}`;
 }
 
 // Add transactions to DOM
@@ -117,7 +116,7 @@ function addTransactionDOM(transaction, transactionListEl) {
 
   const item = document.createElement("li");
 
-  item.className = transaction.category === "income" ? "expense" : "income";
+  item.className = transaction.amount < 0 ? "expense" : "income";
 
   const detailsDiv = document.createElement("div");
   detailsDiv.className = "details";
@@ -157,12 +156,18 @@ function addTransactionDOM(transaction, transactionListEl) {
 
   // Don't change the following line
   deleteBtn = transactionListEl.lastElementChild.querySelector(".delete-btn");
+
+  transactionListEl.appendChild(item);
+
+  deleteBtn.addEventListener("click", function () {
+    removeTransaction(transaction.id);
+  });
 }
 
 function createChart(chartContainer) {
   chartContainer.innerHTML = "";
 
-  if ((transactions.length = 0)) {
+  if (transactions.length === 0) {
     chartContainer.textContent = "No data to display";
     return;
   }
@@ -180,6 +185,7 @@ function createChart(chartContainer) {
   // Sum expenses by category (only negative amounts)
   transactions.forEach((transaction) => {
     if (transaction.amount < 0) {
+      if (!categorySummary[transaction.category]) categorySummary[transaction.category] = 0;
       categorySummary[transaction.category] += Math.abs(transaction.amount);
     }
   });
@@ -276,7 +282,7 @@ function generateReport() {
     .reduce((acc, t) => acc + t.amount, 0);
 
   const totalExpense = transactions
-    .filter((t) => t.amount > 0)
+    .filter((t) => t.amount < 0)
     .reduce((acc, t) => acc + t.amount, 0);
 
   const balance = totalIncome - totalExpense;
@@ -292,6 +298,7 @@ function generateReport() {
 
   transactions.forEach((t) => {
     if (t.amount < 0) {
+      if (!categorySummary[t.category]) categorySummary[t.category] = 0;
       categorySummary[t.category] += Math.abs(t.amount);
     }
   });
@@ -435,7 +442,7 @@ function updateCategoryDropdowns(categoryDropdowns) {
     categories.forEach((category) => {
       dropdown.insertAdjacentHTML(
         "beforeend",
-        `<option value="${category.toLowerCase()}">${category}</option>`
+        `<option value="${category}">${category}</option>`
       );
     });
 
@@ -498,5 +505,5 @@ export {
   renderCategoryList,
   setupTabs,
   updateValues,
-  addTransactionDOM,
+  addTransactionDOM
 };
